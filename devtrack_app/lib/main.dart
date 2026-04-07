@@ -1,3 +1,4 @@
+import 'package:devtrack_app/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'screens/register.dart';
 
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: RegisterScreen(), // 👈 START HERE
+      home: LoginScreen(), // 👈 START HERE
     );
   }
 }
