@@ -4,18 +4,16 @@ const db = require('../db');
 
 // CREATE PROJECT
 router.post('/create', (req, res) => {
-  const { user_id, title, description, stage, support_needed } = req.body;
-
-  console.log("REQUEST BODY:", req.body);
+  const { user_id, title, description, stage, support_needed, visibility } = req.body;
 
   const sql = `
-    INSERT INTO projects (user_id, title, description, stage, support_needed)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO projects (user_id, title, description, stage, support_needed, visibility)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [user_id, title, description, stage, support_needed],
+    [user_id, title, description, stage, support_needed, visibility],
     (err, result) => {
       if (err) {
         console.log("SQL ERROR:", err);
@@ -25,6 +23,37 @@ router.post('/create', (req, res) => {
       res.json({ success: true, message: "Project created" });
     }
   );
+});
+
+// GET ONLY PUBLIC PROJECTS
+router.get('/', (req, res) => {
+  const sql = "SELECT * FROM projects WHERE visibility = 'public' ORDER BY id DESC";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.log("SQL ERROR:", err);
+      return res.json([]);
+    }
+
+    res.json(results);
+  });
+});
+
+// UPDATE PROJECT STAGE
+router.put('/update-stage/:id', (req, res) => {
+  const { stage } = req.body;
+  const { id } = req.params;
+
+  const sql = "UPDATE projects SET stage = ? WHERE id = ?";
+
+  db.query(sql, [stage, id], (err, result) => {
+    if (err) {
+      console.log("SQL ERROR:", err);
+      return res.json({ success: false, message: err.message });
+    }
+
+    res.json({ success: true, message: "Project stage updated" });
+  });
 });
 
 module.exports = router;

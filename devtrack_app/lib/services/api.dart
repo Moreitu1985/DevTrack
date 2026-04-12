@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://localhost:3000"; // CHANGE IF NEEDED
+  static const String baseUrl = "http://localhost:3000";
 
-  // REGISTER
   static Future register(String name, String email, String password) async {
     final response = await http.post(
       Uri.parse("$baseUrl/auth/register"),
@@ -19,7 +18,6 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  // LOGIN
   static Future login(String email, String password) async {
     final response = await http.post(
       Uri.parse("$baseUrl/auth/login"),
@@ -33,7 +31,6 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  // GET PROJECTS
   static Future getProjects() async {
     final response = await http.get(
       Uri.parse("$baseUrl/projects"),
@@ -43,13 +40,13 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  // CREATE PROJECT
   static Future createProject(
     int userId,
     String title,
     String description,
     String stage,
     String support,
+    String visibility,
   ) async {
     final response = await http.post(
       Uri.parse("$baseUrl/projects/create"),
@@ -60,6 +57,19 @@ class ApiService {
         "description": description,
         "stage": stage,
         "support_needed": support,
+        "visibility": visibility,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future updateProjectStage(int projectId, String stage) async {
+    final response = await http.put(
+      Uri.parse("$baseUrl/projects/update-stage/$projectId"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "stage": stage,
       }),
     );
 

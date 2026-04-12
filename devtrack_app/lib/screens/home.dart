@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api.dart';
 import 'create_project.dart';
 import 'celebration.dart';
+import 'login.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,9 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
     fetchProjects();
   }
 
-  Future fetchProjects() async {
-    setState(() => loading = true);
-
+  Future<void> fetchProjects() async {
     try {
       var data = await ApiService.getProjects();
       setState(() {
@@ -28,22 +27,87 @@ class _HomeScreenState extends State<HomeScreen> {
         loading = false;
       });
     } catch (e) {
-      print("ERROR: $e");
-      setState(() => loading = false);
+      setState(() {
+        loading = false;
+      });
     }
+  }
+
+  Future<void> showStageDialog(int projectId, String currentStage) async {
+    String selectedStage = currentStage;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text(
+            "Update Stage",
+            style: TextStyle(color: Colors.green),
+          ),
+          content: DropdownButtonFormField<String>(
+            value: selectedStage,
+            dropdownColor: Colors.black,
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.green),
+              ),
+            ),
+            items: ["Idea", "Development", "Testing", "Completed"]
+                .map((stage) => DropdownMenuItem(
+                      value: stage,
+                      child: Text(stage),
+                    ))
+                .toList(),
+            onChanged: (value) {
+              selectedStage = value!;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel", style: TextStyle(color: Colors.white)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () async {
+                await ApiService.updateProjectStage(projectId, selectedStage);
+                Navigator.pop(context);
+                fetchProjects();
+              },
+              child: Text("Save"),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => LoginScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-
       appBar: AppBar(
         title: Text("DevTrack Feed"),
         backgroundColor: Colors.black,
         foregroundColor: Colors.green,
+        actions: [
+          IconButton(
+            onPressed: logout,
+            icon: Icon(Icons.logout, color: Colors.green),
+          )
+        ],
       ),
-
       body: loading
           ? Center(
               child: CircularProgressIndicator(color: Colors.green),
@@ -51,35 +115,46 @@ class _HomeScreenState extends State<HomeScreen> {
           : projects.isEmpty
               ? Center(
                   child: Text(
-                    "No projects yet",
+                    "No public projects yet",
                     style: TextStyle(color: Colors.white),
                   ),
                 )
-              : RefreshIndicator(
-                  onRefresh: fetchProjects,
-                  child: ListView.builder(
-                    itemCount: projects.length,
-                    itemBuilder: (context, index) {
-                      var project = projects[index];
+              : ListView.builder(
+                  itemCount: projects.length,
+                  itemBuilder: (context, index) {
+                    var project = projects[index];
 
-                      return Card(
-                        color: Colors.grey[900],
-                        margin: EdgeInsets.all(10),
-                        child: ListTile(
-                          title: Text(
-                            project["title"] ?? "",
-                            style: TextStyle(color: Colors.green),
-                          ),
-                          subtitle: Text(
-                            "Stage: ${project["stage"]}",
-                            style: TextStyle(color: Colors.white),
+                    return Card(
+                      color: Colors.grey[900],
+                      margin: EdgeInsets.all(10),
+                      child: ListTile(
+                        title: Text(
+                          project["title"] ?? "",
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      );
-                    },
-                  ),
+                        subtitle: Text(
+                          "Stage: ${project["stage"]}\n${project["description"] ?? ""}\nVisibility: ${project["visibility"] ?? ""}",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        trailing: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                          ),
+                          onPressed: () {
+                            showStageDialog(
+                              project["id"],
+                              project["stage"],
+                            );
+                          },
+                          child: Text("Update"),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -91,14 +166,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => CreateProject()),
               );
-
-              // 🔥 REFRESH AFTER RETURN
               fetchProjects();
             },
           ),
-
           SizedBox(height: 10),
-
           FloatingActionButton(
             backgroundColor: Colors.green,
             child: Icon(Icons.emoji_events, color: Colors.black),

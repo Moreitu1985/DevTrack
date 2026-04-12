@@ -11,25 +11,22 @@ class _CreateProjectState extends State<CreateProject> {
   final descController = TextEditingController();
 
   String selectedStage = "Idea";
-
+  String selectedVisibility = "public";
   bool loading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-
       appBar: AppBar(
         title: Text("Create Project"),
         backgroundColor: Colors.black,
         foregroundColor: Colors.green,
       ),
-
       body: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-
             Text(
               "New Project",
               style: TextStyle(
@@ -38,9 +35,7 @@ class _CreateProjectState extends State<CreateProject> {
                 color: Colors.green,
               ),
             ),
-
             SizedBox(height: 30),
-
             TextField(
               controller: titleController,
               style: TextStyle(color: Colors.white),
@@ -52,9 +47,7 @@ class _CreateProjectState extends State<CreateProject> {
                 ),
               ),
             ),
-
             SizedBox(height: 15),
-
             TextField(
               controller: descController,
               style: TextStyle(color: Colors.white),
@@ -66,10 +59,7 @@ class _CreateProjectState extends State<CreateProject> {
                 ),
               ),
             ),
-
             SizedBox(height: 15),
-
-            // 🔥 STAGE DROPDOWN
             DropdownButtonFormField<String>(
               value: selectedStage,
               dropdownColor: Colors.black,
@@ -93,9 +83,31 @@ class _CreateProjectState extends State<CreateProject> {
                 });
               },
             ),
-
+            SizedBox(height: 15),
+            DropdownButtonFormField<String>(
+              value: selectedVisibility,
+              dropdownColor: Colors.black,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: "Visibility",
+                labelStyle: TextStyle(color: Colors.green),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green),
+                ),
+              ),
+              items: ["public", "private"]
+                  .map((visibility) => DropdownMenuItem(
+                        value: visibility,
+                        child: Text(visibility),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedVisibility = value!;
+                });
+              },
+            ),
             SizedBox(height: 20),
-
             loading
                 ? CircularProgressIndicator(color: Colors.green)
                 : ElevatedButton(
@@ -103,7 +115,6 @@ class _CreateProjectState extends State<CreateProject> {
                       backgroundColor: Colors.green,
                     ),
                     onPressed: () async {
-
                       if (titleController.text.isEmpty ||
                           descController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -115,17 +126,14 @@ class _CreateProjectState extends State<CreateProject> {
                       setState(() => loading = true);
 
                       try {
-                        print("CREATE BUTTON CLICKED");
-
                         var res = await ApiService.createProject(
-                          1, // 🔥 TEMP USER ID
+                          1,
                           titleController.text,
                           descController.text,
                           selectedStage,
                           "None",
+                          selectedVisibility,
                         );
-
-                        print("RESPONSE: $res");
 
                         setState(() => loading = false);
 
@@ -133,8 +141,7 @@ class _CreateProjectState extends State<CreateProject> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Project Created")),
                           );
-
-                          Navigator.pop(context); // 🔥 GO BACK & REFRESH
+                          Navigator.pop(context);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(res["message"] ?? "Failed")),
@@ -142,9 +149,6 @@ class _CreateProjectState extends State<CreateProject> {
                         }
                       } catch (e) {
                         setState(() => loading = false);
-
-                        print("ERROR: $e");
-
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Server error")),
                         );
