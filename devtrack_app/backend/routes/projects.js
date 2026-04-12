@@ -25,9 +25,23 @@ router.post('/create', (req, res) => {
   );
 });
 
-// GET ONLY PUBLIC PROJECTS
+// GET PUBLIC PROJECTS
 router.get('/', (req, res) => {
   const sql = "SELECT * FROM projects WHERE visibility = 'public' ORDER BY id DESC";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.log("SQL ERROR:", err);
+      return res.json([]);
+    }
+
+    res.json(results);
+  });
+});
+
+// GET COMPLETED PROJECTS
+router.get('/completed', (req, res) => {
+  const sql = "SELECT * FROM projects WHERE stage = 'Completed' ORDER BY id DESC";
 
   db.query(sql, (err, results) => {
     if (err) {

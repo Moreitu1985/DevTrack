@@ -12,6 +12,7 @@ class _CreateProjectState extends State<CreateProject> {
 
   String selectedStage = "Idea";
   String selectedVisibility = "public";
+
   bool loading = false;
 
   @override
@@ -25,138 +26,182 @@ class _CreateProjectState extends State<CreateProject> {
       ),
       body: Padding(
         padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Text(
-              "New Project",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-            SizedBox(height: 30),
-            TextField(
-              controller: titleController,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: "Project Title",
-                labelStyle: TextStyle(color: Colors.green),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text(
+                "New Project",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
                 ),
               ),
-            ),
-            SizedBox(height: 15),
-            TextField(
-              controller: descController,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: "Description",
-                labelStyle: TextStyle(color: Colors.green),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green),
+              SizedBox(height: 30),
+
+              // TITLE
+              TextField(
+                controller: titleController,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: "Project Title",
+                  labelStyle: TextStyle(color: Colors.green),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 15),
-            DropdownButtonFormField<String>(
-              value: selectedStage,
-              dropdownColor: Colors.black,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: "Stage",
-                labelStyle: TextStyle(color: Colors.green),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green),
+
+              SizedBox(height: 15),
+
+              // DESCRIPTION
+              TextField(
+                controller: descController,
+                style: TextStyle(color: Colors.white),
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: "Description",
+                  labelStyle: TextStyle(color: Colors.green),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
                 ),
               ),
-              items: ["Idea", "Development", "Testing", "Completed"]
-                  .map((stage) => DropdownMenuItem(
-                        value: stage,
-                        child: Text(stage),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedStage = value!;
-                });
-              },
-            ),
-            SizedBox(height: 15),
-            DropdownButtonFormField<String>(
-              value: selectedVisibility,
-              dropdownColor: Colors.black,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: "Visibility",
-                labelStyle: TextStyle(color: Colors.green),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green),
+
+              SizedBox(height: 15),
+
+              // STAGE DROPDOWN
+              DropdownButtonFormField<String>(
+                value: selectedStage,
+                dropdownColor: Colors.black,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: "Stage",
+                  labelStyle: TextStyle(color: Colors.green),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
                 ),
+                items: ["Idea", "Development", "Testing", "Completed"]
+                    .map((stage) => DropdownMenuItem(
+                          value: stage,
+                          child: Text(stage),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedStage = value!;
+                  });
+                },
               ),
-              items: ["public", "private"]
-                  .map((visibility) => DropdownMenuItem(
-                        value: visibility,
-                        child: Text(visibility),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedVisibility = value!;
-                });
-              },
-            ),
-            SizedBox(height: 20),
-            loading
-                ? CircularProgressIndicator(color: Colors.green)
-                : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
-                    onPressed: () async {
-                      if (titleController.text.isEmpty ||
-                          descController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Fill all fields")),
-                        );
-                        return;
-                      }
 
-                      setState(() => loading = true);
+              SizedBox(height: 15),
 
-                      try {
-                        var res = await ApiService.createProject(
-                          1,
-                          titleController.text,
-                          descController.text,
-                          selectedStage,
-                          "None",
-                          selectedVisibility,
-                        );
+              // VISIBILITY DROPDOWN
+              DropdownButtonFormField<String>(
+                value: selectedVisibility,
+                dropdownColor: Colors.black,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: "Visibility",
+                  labelStyle: TextStyle(color: Colors.green),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green),
+                  ),
+                ),
+                items: ["public", "private"]
+                    .map((visibility) => DropdownMenuItem(
+                          value: visibility,
+                          child: Text(visibility),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedVisibility = value!;
+                  });
+                },
+              ),
 
-                        setState(() => loading = false);
+              SizedBox(height: 25),
 
-                        if (res["success"] == true) {
+              // BUTTON
+              loading
+                  ? CircularProgressIndicator(color: Colors.green)
+                  : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 15,
+                        ),
+                      ),
+                      onPressed: () async {
+                        if (titleController.text.isEmpty ||
+                            descController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Project Created")),
+                            SnackBar(content: Text("Please fill all fields")),
                           );
-                          Navigator.pop(context);
-                        } else {
+                          return;
+                        }
+
+                        setState(() {
+                          loading = true;
+                        });
+
+                        try {
+                          print("CREATE BUTTON CLICKED");
+
+                          var res = await ApiService.createProject(
+                            1, // ⚠️ TEMP USER ID
+                            titleController.text,
+                            descController.text,
+                            selectedStage,
+                            "None",
+                            selectedVisibility,
+                          );
+
+                          print("RESPONSE: $res");
+
+                          setState(() {
+                            loading = false;
+                          });
+
+                          if (res["success"] == true) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Project Created")),
+                            );
+
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    res["message"] ?? "Failed to create project"),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          setState(() {
+                            loading = false;
+                          });
+
+                          print("ERROR: $e");
+
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(res["message"] ?? "Failed")),
+                            SnackBar(content: Text("Server error")),
                           );
                         }
-                      } catch (e) {
-                        setState(() => loading = false);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Server error")),
-                        );
-                      }
-                    },
-                    child: Text("Create"),
-                  ),
-          ],
+                      },
+                      child: Text("Create"),
+                    ),
+            ],
+          ),
         ),
       ),
     );
