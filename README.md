@@ -1,4 +1,4 @@
-# 🚀 DevTrack – Build in Public Platform
+# DevTrack – Build in Public Platform
 
 DevTrack is a full-stack developer platform that allows users to **build in public**, share their projects, track progress, collaborate, and celebrate completed work.
 
@@ -198,7 +198,7 @@ http://localhost:3000
 ## 👨‍💻 Author
 
 **Itumeleng More**
-Software Developer | Computer Science & Informatics 
+Software Developer | Computer Science & Informatics Graduate
 
 Passionate about building scalable, user-focused applications and exploring modern technologies including mobile development, backend systems, and AI-driven solutions.
 
