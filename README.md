@@ -192,9 +192,9 @@ http://localhost:3000
 
 ---
 
+## 🎥 Project Demo
 
----
-
+[![Watch DevTrack Demo](https://img.youtube.com/vi/sUZ-P0b4N-M/0.jpg)](https://youtu.be/sUZ-P0b4N-M)
 ## 👨‍💻 Author
 
 **Itumeleng More**
